@@ -13,7 +13,7 @@ Chrome 扩展 ──POST http://127.0.0.1:27125/ask──▶ Obsidian「Claudian
 ## 安装
 
 ```bash
-git clone https://github.com/<你的用户名>/send-to-claudian.git
+git clone https://github.com/19730056099-creator/ChromeConnectClaudian.git
 ```
 
 1. **双击 `install.bat`**。它会：
