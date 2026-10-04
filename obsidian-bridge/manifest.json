@@ -1,0 +1,9 @@
+{
+  "id": "claudian-bridge",
+  "name": "Claudian Bridge",
+  "version": "0.1.0",
+  "minAppVersion": "1.5.0",
+  "description": "Receive selected text from a Chrome extension via a local HTTP server and send it to Claudian.",
+  "author": "MengZhouyi",
+  "isDesktopOnly": true
+}

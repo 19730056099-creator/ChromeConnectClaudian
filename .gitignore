@@ -1,0 +1,10 @@
+# 由 install.bat 生成，包含本机 token
+chrome-extension/config.js
+
+# Obsidian 插件运行时数据
+obsidian-bridge/data.json
+
+node_modules/
+*.crx
+*.pem
+*.zip
