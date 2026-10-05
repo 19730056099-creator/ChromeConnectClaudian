@@ -2,36 +2,253 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Send to Claudian 设置</title>
   <style>
-    body { font: 14px/1.5 system-ui, sans-serif; max-width: 640px; margin: 24px auto; padding: 0 16px; }
-    label { display: block; margin-top: 16px; font-weight: 600; }
-    input, textarea { width: 100%; box-sizing: border-box; padding: 6px 8px; font: inherit; }
-    textarea { height: 140px; font-family: ui-monospace, Consolas, monospace; }
-    .hint { color: #666; font-size: 12px; margin-top: 4px; }
-    .row { margin-top: 20px; display: flex; gap: 8px; align-items: center; }
-    #status { margin-left: 8px; }
+    /* 温润极简：纸张底色 + 细噪点，硬朗细边框，小圆角，克制用色 */
+    :root {
+      --paper: #f3efe6;
+      --card: #fbf9f4;
+      --field: #fffdf8;
+      --ink: #2b2925;
+      --ink-soft: #57524a;
+      --muted: #8a8478;
+      --line: #2b2925;
+      --line-soft: #d9d3c6;
+      --hover: #efe9dc;
+      --ok: #2a9d8f;
+      --warn: #d9772b;
+      --shadow: 0 1px 0 rgba(43, 41, 37, .06), 0 10px 24px -14px rgba(70, 55, 30, .35);
+      --grain-opacity: .07;
+      color-scheme: light;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --paper: #1d1b18;
+        --card: #262420;
+        --field: #2c2a25;
+        --ink: #ece6d8;
+        --ink-soft: #c6bfb0;
+        --muted: #8f887b;
+        --line: #d8d1c2;
+        --line-soft: #48443c;
+        --hover: #322f29;
+        --ok: #4fb8aa;
+        --warn: #e8914c;
+        --shadow: 0 1px 0 rgba(0, 0, 0, .3), 0 12px 26px -14px rgba(0, 0, 0, .7);
+        --grain-opacity: .05;
+        color-scheme: dark;
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html { background: var(--paper); }
+    body {
+      margin: 0; min-height: 100vh; color: var(--ink);
+      font: 14px/1.6 "Segoe UI", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+      background: var(--paper);
+      position: relative;
+    }
+    /* 纸纹：噪点 + 极淡的横向纹理 */
+    body::before {
+      content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      opacity: var(--grain-opacity);
+      background-image:
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"),
+        repeating-linear-gradient(0deg, rgba(0,0,0,.35) 0 1px, transparent 1px 4px);
+    }
+    main { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; padding: 40px 16px 120px; }
+
+    /* 页头 */
+    header { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; }
+    .logo {
+      width: 44px; height: 44px; flex: none; display: grid; place-items: center;
+      border: 2px solid var(--line); border-radius: 3px; background: var(--card);
+      font: 700 22px/1 Georgia, "Times New Roman", serif; box-shadow: var(--shadow);
+    }
+    header h1 { margin: 0; font-size: 20px; letter-spacing: .02em; }
+    header p { margin: 0; color: var(--muted); font-size: 13px; }
+    .version {
+      margin-left: auto; padding: 1px 8px; font-size: 12px; color: var(--ink-soft);
+      border: 1px solid var(--line-soft); border-radius: 2px;
+    }
+
+    /* 卡片 */
+    .card {
+      background: var(--card); border: 1.5px solid var(--line); border-radius: 3px;
+      box-shadow: var(--shadow); margin-bottom: 22px;
+    }
+    .card-head {
+      display: flex; align-items: center; gap: 10px; padding: 12px 18px;
+      border-bottom: 1px solid var(--line-soft);
+    }
+    .card-head h2 { margin: 0; font-size: 15px; }
+    .card-head .sub { color: var(--muted); font-size: 12px; }
+    .card-head .spacer { flex: 1; }
+    .card-body { padding: 16px 18px 18px; }
+
+    .grid { display: grid; grid-template-columns: 120px 1fr; gap: 14px; }
+    @media (max-width: 520px) { .grid { grid-template-columns: 1fr; } }
+    .field label { display: block; font-size: 12px; font-weight: 600; color: var(--ink-soft); margin-bottom: 4px; letter-spacing: .03em; }
+
+    input, textarea {
+      width: 100%; padding: 7px 10px; font: inherit; color: var(--ink);
+      background: var(--field); border: 1px solid var(--line-soft); border-radius: 2px;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input:focus, textarea:focus { outline: none; border-color: var(--line); box-shadow: 0 0 0 3px rgba(120, 105, 75, .14); }
+    textarea {
+      min-height: 120px; resize: vertical;
+      font: 13px/1.6 "Cascadia Mono", Consolas, "Microsoft YaHei", monospace;
+    }
+
+    /* 按钮 */
+    button {
+      font: inherit; font-size: 13px; padding: 6px 14px; cursor: pointer; color: var(--ink);
+      background: var(--card); border: 1.5px solid var(--line); border-radius: 2px;
+      box-shadow: 0 1px 0 var(--line-soft); transition: background .15s, transform .05s;
+    }
+    button:hover { background: var(--hover); }
+    button:active { transform: translateY(1px); box-shadow: none; }
+    button.primary { background: var(--ink); color: var(--paper); }
+    button.primary:hover { background: var(--ink-soft); }
+    button.ghost { border-color: var(--line-soft); box-shadow: none; color: var(--ink-soft); }
+    button.icon { padding: 3px 8px; font-size: 12px; border-width: 1px; box-shadow: none; display: inline-flex; align-items: center; gap: 4px; min-height: 26px; }
+    button.icon.danger:hover { color: var(--warn); border-color: var(--warn); }
+
+    .conn-row { display: flex; align-items: center; gap: 10px; margin-top: 16px; }
+
+    /* 状态标签 */
+    .pill {
+      display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 2px 10px;
+      border: 1px solid currentColor; border-radius: 2px; color: var(--muted);
+    }
+    .pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .pill.ok { color: var(--ok); }
+    .pill.warn { color: var(--warn); }
+    .pill:empty { display: none; }
+
+    /* 占位符 */
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+    .chip {
+      display: inline-flex; gap: 6px; align-items: baseline; padding: 3px 9px; cursor: pointer;
+      font-size: 12px; background: var(--field); border: 1px dashed var(--line-soft); border-radius: 2px;
+      box-shadow: none; color: var(--ink-soft);
+    }
+    .chip code { font: 600 12px Consolas, monospace; color: var(--ink); }
+    .chip:hover { border-style: solid; border-color: var(--line); }
+    .chips-hint { color: var(--muted); font-size: 12px; margin: -6px 0 14px; }
+
+    /* 笔记类型 */
+    .mode {
+      border: 1px solid var(--line-soft); border-radius: 2px; background: var(--field);
+      padding: 12px; margin-top: 12px; transition: border-color .15s;
+    }
+    .mode:focus-within { border-color: var(--line); }
+    .mode-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .mode-index {
+      width: 24px; height: 24px; flex: none; display: grid; place-items: center;
+      font: 600 12px Georgia, serif; border: 1px solid var(--line); border-radius: 2px;
+    }
+    .mode-head input.name { flex: 1; font-weight: 600; background: transparent; border-color: transparent; padding-left: 6px; }
+    .mode-head input.name:hover { border-color: var(--line-soft); }
+    .mode-head input.name:focus { background: var(--card); border-color: var(--line); }
+    .tag {
+      font-size: 11px; padding: 0 6px; border-radius: 2px; color: var(--paper); background: var(--ink);
+      white-space: nowrap;
+    }
+    .tag[hidden] { display: none; }
+    .empty { text-align: center; color: var(--muted); padding: 24px 0 8px; }
+
+    /* 底部操作栏 */
+    .bar {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 2;
+      background: color-mix(in srgb, var(--paper) 88%, transparent);
+      backdrop-filter: blur(6px); border-top: 1.5px solid var(--line);
+    }
+    .bar-inner { max-width: 720px; margin: 0 auto; padding: 12px 16px; display: flex; align-items: center; gap: 10px; }
+    .bar .spacer { flex: 1; }
+    .dirty { font-size: 12px; color: var(--warn); }
+    .dirty[hidden] { display: none; }
   </style>
 </head>
 <body>
-  <h2>Send to Claudian 设置</h2>
+  <main>
+    <header>
+      <div class="logo">C</div>
+      <div>
+        <h1>Send to Claudian</h1>
+        <p>选中网页文字，右键发送到 Obsidian 的 Claudian 记笔记</p>
+      </div>
+      <span class="version" id="version"></span>
+    </header>
 
-  <label for="port">端口</label>
-  <input id="port" type="number" min="1" max="65535">
+    <section class="card">
+      <div class="card-head">
+        <h2>连接</h2>
+        <span class="sub">Obsidian · Claudian Bridge</span>
+      </div>
+      <div class="card-body">
+        <div class="grid">
+          <div class="field">
+            <label for="port">端口</label>
+            <input id="port" type="number" min="1" max="65535">
+          </div>
+          <div class="field">
+            <label for="token">Token</label>
+            <input id="token" type="text" placeholder="从 Obsidian → 设置 → Claudian Bridge 复制">
+          </div>
+        </div>
+        <div class="conn-row">
+          <button id="test">测试连接</button>
+          <span id="conn" class="pill"></span>
+        </div>
+      </div>
+    </section>
 
-  <label for="token">Token</label>
-  <input id="token" type="text" placeholder="从 Obsidian → 设置 → Claudian Bridge 复制">
+    <section class="card">
+      <div class="card-head">
+        <h2>笔记类型</h2>
+        <span class="sub" id="mode-count"></span>
+        <span class="spacer"></span>
+        <button id="add" class="icon">＋ 添加类型</button>
+      </div>
+      <div class="card-body">
+        <div class="chips">
+          <span class="chip" data-ph="{{text}}"><code>{{text}}</code>选中文字</span>
+          <span class="chip" data-ph="{{word}}"><code>{{word}}</code>二次选中的词</span>
+          <span class="chip" data-ph="{{title}}"><code>{{title}}</code>网页标题</span>
+          <span class="chip" data-ph="{{url}}"><code>{{url}}</code>网页地址</span>
+        </div>
+        <div class="chips-hint">点击占位符插入到正在编辑的模板。模板含 <code>{{word}}</code> 时，右键后会弹出选词面板。</div>
+        <div id="modes"></div>
+      </div>
+    </section>
+  </main>
 
-  <label for="template">提示词模板</label>
-  <textarea id="template"></textarea>
-  <div class="hint">可用占位符：{{text}} 选中文字、{{title}} 网页标题、{{url}} 网页地址</div>
-
-  <div class="row">
-    <button id="save">保存</button>
-    <button id="test">测试连接</button>
-    <button id="reset">恢复默认模板</button>
-    <span id="status"></span>
+  <div class="bar">
+    <div class="bar-inner">
+      <button id="reset" class="ghost">恢复默认类型</button>
+      <span class="spacer"></span>
+      <span class="dirty" id="dirty" hidden>有未保存的修改</span>
+      <span id="status" class="pill"></span>
+      <button id="save" class="primary">保存</button>
+    </div>
   </div>
+
+  <template id="mode-tpl">
+    <div class="mode">
+      <div class="mode-head">
+        <span class="mode-index"></span>
+        <input class="name" type="text" placeholder="类型名称">
+        <span class="tag" title="右键后弹出选词面板" hidden>选词</span>
+        <button class="icon up" title="上移"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 7.5 6 4l3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
+        <button class="icon down" title="下移"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
+        <button class="icon danger del" title="删除">删除</button>
+      </div>
+      <textarea class="template" spellcheck="false"></textarea>
+    </div>
+  </template>
 
   <script src="config.js"></script>
   <script src="defaults.js"></script>

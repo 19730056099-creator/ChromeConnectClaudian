@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
   "name": "Send to Claudian",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "选中网页文字，右键发送到本机 Obsidian 的 Claudian 提问并记笔记。",
-  "permissions": ["contextMenus", "storage", "notifications"],
+  "permissions": ["contextMenus", "storage", "notifications", "scripting", "activeTab"],
   "host_permissions": ["http://127.0.0.1/*"],
   "background": {
     "service_worker": "background.js"

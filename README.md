@@ -28,7 +28,18 @@ git clone https://github.com/19730056099-creator/ChromeConnectClaudian.git
 > 多个 vault 同时打开时，只有一个能占用端口（其余会提示端口被占用，可忽略）。
 
 ## 使用
-任意网页选中文字 → 右键 → **发送到 Claudian 记笔记** → 选择目标会话：
+任意网页选中文字 → 右键 → **发送到 Claudian 记笔记** → 选择笔记类型 → 选择目标会话。
+
+笔记类型（可在设置页增删改、排序）：
+
+- **解释并记笔记**：解释选中内容并整理成笔记
+- **单词笔记（例句）**：选中整句 → 右键选这个类型 → 网页上弹出选词面板，句子被拆成可点击的词，
+  单击选择/取消单词（可多选，相邻的词会合并成短语）、Shift+单击选一段（也可在输入框里直接改，多个用逗号分隔），Enter 发送。
+  例如选中 `If you are attempting to officially enroll in CS 61B late in the semester`，在面板里点 `enroll`，
+  发给 Claudian 的就是「为 enroll 写单词笔记」+ 整句作为例句
+- **翻译**：翻译成中文并记录原文与译文
+
+目标会话：
 
 - **当前会话**：Claudian 当前激活的标签页
 - **新建会话**：新开一个标签页
@@ -36,7 +47,8 @@ git clone https://github.com/19730056099-creator/ChromeConnectClaudian.git
 
 会话列表会在你从 Obsidian 切回 Chrome、或切换浏览器标签页时自动刷新。Obsidian 中 Claudian 会自动切到对应会话并开始回答。
 
-提示词模板可在扩展设置页修改，支持 `{{text}}`、`{{title}}`、`{{url}}`。
+每种类型的提示词模板可在扩展设置页修改，支持 `{{text}}`（选中文字）、`{{word}}`（在选词面板中二次选中的词）、`{{title}}`、`{{url}}`。
+模板中含 `{{word}}` 时右键后才会弹出选词面板；`chrome://` 页面、PDF 查看器等不允许扩展注入的地方无法弹出面板。
 
 ## 手动安装（非 Windows 或不想用脚本）
 1. 把 `obsidian-bridge/` 下的 `manifest.json`、`main.js` 复制到 `<vault>/.obsidian/plugins/claudian-bridge/`，在 Obsidian 中启用 **Claudian Bridge**，在它的设置页复制 token。
