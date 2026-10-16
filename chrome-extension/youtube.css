@@ -1,0 +1,7 @@
+/* YouTube 字幕可框选（配合 youtube.js） */
+.ytp-caption-window-container .caption-window,
+.ytp-caption-window-container .ytp-caption-segment {
+  -webkit-user-select: text !important;
+  user-select: text !important;
+  cursor: text !important;
+}
