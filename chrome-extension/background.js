@@ -3,6 +3,7 @@ try {
   importScripts("config.js");
 } catch {}
 importScripts("defaults.js");
+importScripts("source.js");
 
 const PARENT_ID = "send-to-claudian";
 const TARGET_PREFIX = "t:"; // t:<modeId>:<target>
@@ -121,8 +122,24 @@ async function findMode(modeId) {
   return modes.find((m) => m.id === modeId);
 }
 
+// 菜单点击那一刻的来源；YouTube 视频页读取当前播放时间，生成带时间点的链接
+async function pageSource(tab, info) {
+  const url = tab?.url || info.pageUrl || "";
+  let seconds = null;
+  if (tab?.id && youtubeVideoId(url)) {
+    try {
+      const [r] = await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        func: () => (document.querySelector("#movie_player video") || document.querySelector("video"))?.currentTime,
+      });
+      seconds = r?.result ?? null;
+    } catch {}
+  }
+  return sourceInfo(url, tab?.title || "", seconds);
+}
+
 // 模板含 {{word}} 时，先在网页上弹出选词面板，让用户从选中的句子里再选一个词
-async function showPicker(tab, info, mode, target, text) {
+async function showPicker(tab, info, mode, target, text, source) {
   const targetName =
     target === "active" ? "当前会话" : target === "new" ? "新建会话" : sessionTitles[target] || "指定会话";
   const injection = { target: { tabId: tab.id, frameIds: [info.frameId ?? 0] } };
@@ -131,7 +148,7 @@ async function showPicker(tab, info, mode, target, text) {
     await chrome.scripting.executeScript({
       ...injection,
       func: (opts) => globalThis.claudianShowPicker(opts),
-      args: [{ text, modeId: mode.id, modeName: mode.name, target, targetName }],
+      args: [{ text, modeId: mode.id, modeName: mode.name, target, targetName, title: source.title, url: source.url }],
     });
   } catch {
     notify("无法打开选词面板", "当前页面（如 chrome:// 页、PDF 查看器）不允许扩展注入，请换个页面或改用其他笔记类型。");
@@ -151,13 +168,14 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 
   const mode = await findMode(modeId);
   if (!mode) return refreshMenus();
+  const source = await pageSource(tab, info);
 
   if (mode.template.includes("{{word}}")) {
-    if (tab?.id) return showPicker(tab, info, mode, target, text);
+    if (tab?.id) return showPicker(tab, info, mode, target, text, source);
     return notify("无法打开选词面板", "当前页面不是普通标签页，请在网页中使用单词笔记。");
   }
 
-  await send(mode, { text, word: text, title: tab?.title || "", url: tab?.url || info.pageUrl || "" }, target);
+  await send(mode, { text, word: text, ...source }, target);
 });
 
 // 选词面板确认后发回来的消息
@@ -166,7 +184,7 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
   (async () => {
     const mode = await findMode(msg.modeId);
     if (!mode) return notify("发送到 Claudian 失败", "该笔记类型已被删除");
-    const vars = { text: msg.text, word: msg.word, title: sender.tab?.title || "", url: sender.tab?.url || "" };
+    const vars = { text: msg.text, word: msg.word, title: msg.title ?? sender.tab?.title ?? "", url: msg.url ?? sender.tab?.url ?? "" };
     await send(mode, vars, msg.target);
   })();
 });

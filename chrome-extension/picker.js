@@ -179,7 +179,7 @@ globalThis.claudianShowPicker = function (opts) {
   const send = () => {
     const word = input.value.trim();
     if (!word) return;
-    chrome.runtime.sendMessage({ type: "claudian-pick", modeId: opts.modeId, target: opts.target, text: opts.text, word });
+    chrome.runtime.sendMessage({ type: "claudian-pick", modeId: opts.modeId, target: opts.target, text: opts.text, word, title: opts.title, url: opts.url });
     close();
   };
   function onKey(e) {
