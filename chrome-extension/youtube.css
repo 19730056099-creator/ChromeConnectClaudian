@@ -1,7 +1,12 @@
-/* YouTube 字幕可框选（配合 youtube.js） */
+/* YouTube 字幕可框选（配合 youtube.js）。字幕框是 draggable="true"，要关掉原生拖拽才能拖选文字 */
+.ytp-caption-window-container,
 .ytp-caption-window-container .caption-window,
 .ytp-caption-window-container .ytp-caption-segment {
   -webkit-user-select: text !important;
   user-select: text !important;
+}
+.ytp-caption-window-container .caption-window,
+.ytp-caption-window-container .ytp-caption-segment {
+  -webkit-user-drag: none !important;
   cursor: text !important;
 }

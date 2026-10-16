@@ -39,6 +39,13 @@ git clone https://github.com/19730056099-creator/ChromeConnectClaudian.git
   发给 Claudian 的就是「为 enroll 写单词笔记」+ 整句作为例句
 - **翻译**：翻译成中文并记录原文与译文
 
+YouTube 字幕：
+
+- 打开字幕后，鼠标移到字幕上视频会自动暂停，直接拖选字幕文字 → 右键 → **发送到 Claudian 记笔记**，后续流程同上
+- 只是路过（没选文字），鼠标离开后自动继续播放；选了文字则保持暂停，用完按空格 / K 继续
+- 发送时 `{{url}}` 会变成带时间点的链接（如 `https://youtu.be/xxx?t=752`），`{{title}}` 去掉「 - YouTube」
+- 只支持 youtube.com 上的播放器（不含其他网站嵌入的播放器、Shorts）
+
 目标会话：
 
 - **当前会话**：Claudian 当前激活的标签页
