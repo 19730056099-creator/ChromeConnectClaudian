@@ -42,6 +42,7 @@ git clone https://github.com/19730056099-creator/ChromeConnectClaudian.git
 YouTube 字幕：
 
 - 打开字幕后，鼠标移到字幕上视频会自动暂停，直接拖选字幕文字 → 右键 → **发送到 Claudian 记笔记**，后续流程同上
+- 兼容「沉浸式翻译」的双语字幕
 - 只是路过（没选文字），鼠标离开后自动继续播放；选了文字则保持暂停，用完按空格 / K 继续
 - 发送时 `{{url}}` 会变成带时间点的链接（如 `https://youtu.be/xxx?t=752`），`{{title}}` 去掉「 - YouTube」
 - 只支持 youtube.com 上的播放器（不含其他网站嵌入的播放器、Shorts）
